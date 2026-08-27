@@ -1,13 +1,29 @@
+import glob
+import os
 import time
+from threading import Thread
 
 import cv2
+from emailing import send_email
 
 video = cv2.VideoCapture(0)
 time.sleep(1)
 
 first_frame = None
+status_list = []
+count = 1
+
+
+def clean_folder():
+    print("clean_folder function started")
+    images = glob.glob("downloads/*.png")
+    for image in images:
+        os.remove(image)
+    print("clean_folder function ended")
+
 
 while True:
+    status = 0
     check, frame = video.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray_frame_gau = cv2.GaussianBlur(gray_frame, (21, 21), 0)
@@ -30,7 +46,23 @@ while True:
         if cv2.contourArea(contour) < 5000:
             continue
         x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        rectangle = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+        if rectangle.any():
+            status = 1
+            cv2.imwrite(f"downloads/{count}.png", frame)
+            count += 1
+            all_images = glob.glob("downloads/*.png")
+            index = int(len(all_images) / 2)
+            image_with_object = all_images[index]
+
+    status_list.append(status)
+    status_list = status_list[-2:]
+
+    if status_list[0] == 1 and status_list[1] == 0:
+        email_thread = Thread(target=send_email, args=(image_with_object, clean_folder))
+        email_thread.daemon = True
+
+        email_thread.start()
 
     cv2.imshow("Video", frame)
     key = cv2.waitKey(1)
