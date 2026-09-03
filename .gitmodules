@@ -1,0 +1,3 @@
+[submodule "App10_MarioGame/super-mario-python"]
+	path = App10_MarioGame/super-mario-python
+	url = https://github.com/pereiraoliver/super-mario-python.git
