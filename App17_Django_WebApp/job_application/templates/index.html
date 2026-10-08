@@ -13,6 +13,7 @@
     <div class="container">
       <h1 class="mt-4 mb-4">Job Application Form</h1>
       <form method="POST">
+        {% csrf_token %}
         <div class="form-group mb-4">
           <label for="first_name">First Name:</label>
           <input
@@ -103,9 +104,9 @@
           </div>
         </div>
         <button type="submit" class="btn btn-secondary mb-4">Submit</button>
-        {% with messages = get_flashed_messages() %} {% if messages %}
+        {% if messages %}
         <div>{% for message in messages %} {{ message }} {% endfor %}</div>
-        {% endif %} {% endwith %}
+        {% endif %}
       </form>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
